@@ -10,7 +10,7 @@ services:
     image: milawien/collectivo:pr-custom_extensions
     # Synchronize source code inside and outside the docker container.
     volumes:
-      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ./collectivo_extensions:/collectivo_app/collectivo_extensions
       - ./docker/static:/app/static
     # Wait for database to be ready (this command will work only on linux),
     # migrate the database changes and start a development server.
@@ -34,13 +34,7 @@ services:
       COLLECTIVO_SETTINGS: collectivo_extensions.settings
       DEBUG: False
       DEVELOPMENT: False
-      # Optional environment variables:
       ALLOWED_HOSTS: collectivo.mila.wien
-      # See https://docs.djangoproject.com/en/3.2/topics/i18n/
-      # LANGUAGE_CODE
-      # TIME_ZONE
-      # KEYCLOAK_CLIENT_ID: collectivo
-      # KEYCLOAK_REALM_NAME: collectivo
       VIRTUAL_HOST: collectivo.mila.wien
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: collectivo.mila.wien
