@@ -9,7 +9,6 @@ on:
 jobs:
   test-docker:
     name: Test docker environement
-    needs: [test-python]
     runs-on: ubuntu-20.04
     steps:
       - name: Check Credentials
