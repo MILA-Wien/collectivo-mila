@@ -1,6 +1,24 @@
 # MILA collectivo
 
-An instance of [collectivo](https://github.com/MILA-Wien/collectivo/) for [MILA](https://www.mila.wien/), which will be running at https://mein.mila.wien/.
+An instance of [collectivo](https://github.com/MILA-Wien/collectivo/) for [MILA](https://www.mila.wien/), which is available at https://mein.mila.wien/.
+
+## Custom extensions
+
+- mila_members
+
+## Development
+
+For local development and testing, use:
+
+```shell
+docker compose -f ./docker-compose-dev.yml build
+```
+
+```shell
+docker compose -f ./docker-compose-dev.yml up -d
+```
+
+For further information, see [collectivo](https://github.com/MILA-Wien/collectivo/).
 
 ## Secrets
 
