@@ -7,8 +7,69 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  test-python:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Add in environment variables for postgres testing
+    env:
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_HOST: localhost # default host value for the database
+      DB_NAME: djtesting
+      POSTGRES_PORT: 5432
+      DJANGO_SECRET_KEY: test-key-not-good
+    services:
+      # start a postgres service container
+      postgres_main:
+        image: postgres:12
+        env:
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASS }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
+        ports:
+          - 5432:5432
+        # wait until postgres is ready
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      # test against these python versions
+      matrix:
+        python-version: ["3.9", "3.10"]
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup keycloak
+        run: |
+          docker network create -d bridge collectivo
+          cd ${GITHUB_WORKSPACE}/docker/keycloak && docker build -t keycloak .
+          /usr/bin/docker run -d -p 8080:8080 --network collectivo --name keycloak --hostname keycloak  -e GITHUB_ACTIONS=true -e CI=true keycloak
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Add hosts to /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 collectivo.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 keycloak" | sudo tee -a /etc/hosts
+          cat /etc/hosts
+          while ! curl --connect-timeout 5 -v --max-time 10 --retry 5 --retry-connrefused  --retry-delay 0 --retry-max-time 40 http://keycloak:8080
+          do
+              { echo "Exit status of curl: $?"
+                echo "Retrying ..."
+              } 1>&2
+              sleep 10
+          done
+
   test-docker:
     name: Test docker environement
+    needs: [test-python]
     runs-on: ubuntu-20.04
     steps:
       - name: Check Credentials
