@@ -140,7 +140,7 @@ services:
     volumes:
       - ./docker/keycloak/import/collectivo-realm.json:/tmp/collectivo-realm.json
       - ./docker/keycloak/themes/collectivo:/opt/keycloak/themes/collectivo
-      - ./docker/keycloak/imorted/:/opt/keycloak/imported/
+      - ./docker/keycloak/imported/:/opt/keycloak/imported/
     depends_on:
       - keycloak-db
     links:
