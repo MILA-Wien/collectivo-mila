@@ -4,7 +4,7 @@
         ${msg("termsTitle")}
     <#elseif section = "form">
     <div id="kc-terms-text">
-        ${kcSanitize(msg("termsText"))?no_esc}
+        ${msg("termsText")}
         <p><a href="https://www.mila.wien/de/datenschutzerklaerung/" target="_blank">https://www.mila.wien/de/datenschutzerklaerung/</a></p>
     </div>
     <form class="form-actions" action="${url.loginAction}" method="POST">
