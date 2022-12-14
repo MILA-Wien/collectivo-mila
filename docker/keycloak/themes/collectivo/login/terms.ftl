@@ -5,6 +5,7 @@
     <#elseif section = "form">
     <div id="kc-terms-text">
         ${kcSanitize(msg("termsText"))?no_esc}
+        <p><a href="https://www.mila.wien/de/datenschutzerklaerung/" target="_blank">https://www.mila.wien/de/datenschutzerklaerung/</a></p>
     </div>
     <form class="form-actions" action="${url.loginAction}" method="POST">
         <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="accept" id="kc-accept" type="submit" value="${msg("doAccept")}"/>
