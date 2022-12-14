@@ -94,8 +94,7 @@ services:
   # A frontend web application.
   collectivo-ux:
     container_name: collectivo-mila-ux
-    # TODO Change to defined docker hub image with _specific version_?
-    image: nanu/collectivo-ux
+    image: milawien/collectivo-ux:latest
     restart: always
     environment:
       VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
@@ -124,7 +123,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_SERVER_URL}
-      KEYCLOAK_IMPORT: /tmp/collectivo-realm.json # uncomment for first import
+      KEYCLOAK_IMPORT: /tmp/collectivo-realm.json
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
       KC_DB_SCHEMA: public
