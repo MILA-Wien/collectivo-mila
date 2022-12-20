@@ -41,6 +41,8 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    labels:
+          io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo-db
       - keycloak
@@ -55,6 +57,8 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
       - ./docker/nginx/error.html:/usr/share/nginx/html/index.html
     restart: always
+    labels:
+      io.portainer.accesscontrol.teams: mila
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy:alpine
@@ -74,6 +78,7 @@ services:
     restart: always
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+      - io.portainer.accesscontrol.teams: mila
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion:dev
     container_name: letsencrypt
@@ -83,6 +88,8 @@ services:
       - ./certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:rw
+    labels:
+      - io.portainer.accesscontrol.teams: mila
 
   # A PostgreSQL database.
   collectivo-db:
@@ -94,6 +101,8 @@ services:
       POSTGRES_DB: collectivo_db
       POSTGRES_USER: ${COLLECTIVO_DB_USER}
       POSTGRES_PASSWORD: ${COLLECTIVO_DB_PASSWORD}
+    labels:
+      io.portainer.accesscontrol.teams: mila
 
   # A frontend web application.
   collectivo-ux:
@@ -107,6 +116,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       VITE_APP_API: ${COLLECTIVO_UX_API_URL}
       VITE_KEYCLOAK_URL: ${COLLECTIVO_UX_KEYCLOAK_URL}
+    labels:
+      io.portainer.accesscontrol.teams: mila
 
   # Database for keycloak
   keycloak-db:
@@ -118,6 +129,9 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: ${KEYCLOAK_DB_USER}
       POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    labels:
+      io.portainer.accesscontrol.teams: mila
+
   # Keycloak for authentication.
   keycloak:
     build: ./docker/keycloak
@@ -146,6 +160,9 @@ services:
       - keycloak-db
     links:
       - keycloak-db
+    labels:
+      io.portainer.accesscontrol.teams: mila
+
 volumes:
   collectivo-db-data:
   keycloak-db-data:
