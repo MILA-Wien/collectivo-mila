@@ -6,7 +6,7 @@ services:
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:v0.2.1
+    image: milawien/collectivo:v0.2.2
     # Synchronize source code inside and outside the docker container.
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
