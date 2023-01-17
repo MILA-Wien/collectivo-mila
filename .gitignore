@@ -5,6 +5,7 @@ node_modules/
 .env
 certs
 nginx
+docker/keycloak/imported/imported.flag
 
 
 # Byte-compiled / optimized / DLL files
