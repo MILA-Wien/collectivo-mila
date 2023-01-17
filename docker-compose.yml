@@ -6,7 +6,7 @@ services:
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:pr-main
+    image: milawien/collectivo:v0.2.1
     # Synchronize source code inside and outside the docker container.
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
@@ -105,7 +105,7 @@ services:
   # A frontend web application.
   collectivo-ux:
     container_name: collectivo-mila-ux
-    image: milawien/collectivo-ux:latest
+    image: milawien/collectivo-ux:v0.1.1
     restart: always
     environment:
       VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
