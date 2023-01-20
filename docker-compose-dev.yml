@@ -42,6 +42,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: redis://redis:6379/0
       CELERY_BACKEND: redis://redis:6379/0
+      DEBUG: 1
+      DEVELOPMENT: 1
     labels:
           io.portainer.accesscontrol.teams: mila
     depends_on:
@@ -86,6 +88,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: redis://redis:6379/0
       CELERY_BACKEND: redis://redis:6379/0
+      DEBUG: 1
+      DEVELOPMENT: 1
     depends_on:
       - collectivo
       - redis
