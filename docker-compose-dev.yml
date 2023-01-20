@@ -6,20 +6,16 @@ services:
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:pr-main
-    # Synchronize source code inside and outside the docker container.
+    image: milawien/collectivo:v0.3.0
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
       - ./docker/static:/app/static
-    # Wait for database to be ready (this command will work only on linux),
-    # migrate the database changes and start a development server.
-    command: > #
+    command: >
        sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
               while ! nc -z keycloak 8080; do sleep 1; done &&
               python manage.py migrate &&
               gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
               "
-    # Environment variables
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -32,19 +28,72 @@ services:
       KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
       COLLECTIVO_SETTINGS: collectivo_extensions.settings
       COLLECTIVO_EXTENSIONS: members
-      DEBUG: 'False'
-      DEVELOPMENT: 'False'
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
       VIRTUAL_HOST: ${COLLECTIVO_URL}
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
-      SELF_SIGNED_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      CELERY_BROKER: redis://redis:6379/0
+      CELERY_BACKEND: redis://redis:6379/0
+    labels:
+          io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo-db
       - keycloak
     links:
       - keycloak
+
+  # A celery worker that runs in the background.
+  # Image & environment should be the same as collectivo-mila.
+  celery:
+    container_name: celery
+    restart: always
+    image: milawien/collectivo:v0.3.0
+    command: celery -A collectivo_app worker -l info
+    volumes:
+      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ./docker/static:/app/static
+    environment:
+      DB_HOST: collectivo-db
+      DB_NAME: collectivo_db
+      DB_USER: ${COLLECTIVO_DB_USER}
+      DB_PASS: ${COLLECTIVO_DB_PASSWORD}
+      SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
+      KEYCLOAK_CLIENT_ID: collectivo
+      KEYCLOAK_REALM_NAME: collectivo
+      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
+      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
+      COLLECTIVO_SETTINGS: collectivo_extensions.settings
+      COLLECTIVO_EXTENSIONS: members
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_URL}
+      VIRTUAL_PORT: 8000
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      CELERY_BROKER: redis://redis:6379/0
+      CELERY_BACKEND: redis://redis:6379/0
+    depends_on:
+      - collectivo
+      - redis
+
+  # A communication broker for celery.
+  redis:
+    container_name: redis
+    image: redis:7.0-alpine
 
   collectivo-static:
     container_name: colletivo-mila-static
@@ -80,6 +129,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./certs:/etc/nginx/certs:rw
+
   # A PostgreSQL database.
   collectivo-db:
     container_name: collectivo-mila-db
