@@ -86,6 +86,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: redis://redis:6379/0
       CELERY_BACKEND: redis://redis:6379/0
+    labels:
+      io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
       - redis
@@ -94,6 +96,8 @@ services:
   redis:
     container_name: redis
     image: redis:7.0-alpine
+    labels:
+      io.portainer.accesscontrol.teams: mila
 
   # A static files server for django.
   collectivo-static:
