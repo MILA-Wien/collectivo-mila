@@ -31,6 +31,7 @@ services:
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
@@ -75,6 +76,7 @@ services:
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
@@ -84,8 +86,8 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: redis://redis:6379/0
-      CELERY_BACKEND: redis://redis:6379/0
+      CELERY_BROKER: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
     depends_on:
       - collectivo
       - redis
@@ -94,7 +96,16 @@ services:
   redis:
     container_name: redis
     image: redis:7.0-alpine
-
+    command: >
+      --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 1000mb --maxmemory-policy volatile-lru
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
   # A static files server for django.
   collectivo-static:
     container_name: colletivo-mila-static
