@@ -88,6 +88,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: redis://:${REDIS_PASSWORD}@redis:6379/0
       CELERY_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
+    labels:
+      io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
       - redis
@@ -106,6 +108,9 @@ services:
       resources:
         limits:
           memory: 1024M
+    labels:
+      io.portainer.accesscontrol.teams: mila
+
   # A static files server for django.
   collectivo-static:
     container_name: colletivo-mila-static
@@ -163,7 +168,7 @@ services:
   # A frontend web application.
   collectivo-ux:
     container_name: collectivo-mila-ux
-    image: milawien/collectivo-ux:v0.2.1
+    image: milawien/collectivo-ux:v0.2.2
     restart: always
     environment:
       VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
