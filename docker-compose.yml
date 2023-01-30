@@ -6,7 +6,7 @@ services:
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:v0.3.0
+    image: milawien/collectivo:v0.3.1
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
       - ./docker/static:/app/static
@@ -56,7 +56,7 @@ services:
   celery:
     container_name: celery
     restart: always
-    image: milawien/collectivo:v0.3.0
+    image: milawien/collectivo:v0.3.1
     command: celery -A collectivo_app worker -l info
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
