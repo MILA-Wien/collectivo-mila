@@ -96,6 +96,48 @@ services:
       - collectivo
       - redis
 
+  # A celery worker that runs in the background and processes the scheduled tasks.
+  celery-beat:
+    container_name: celery-beat
+    restart: always
+    image: milawien/collectivo:v0.3.1
+    command: celery -A collectivo_app beat -l info
+    volumes:
+      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ./docker/static:/app/static
+    environment:
+      DB_HOST: collectivo-db
+      DB_NAME: collectivo_db
+      DB_USER: ${COLLECTIVO_DB_USER}
+      DB_PASS: ${COLLECTIVO_DB_PASSWORD}
+      SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
+      KEYCLOAK_CLIENT_ID: collectivo
+      KEYCLOAK_REALM_NAME: collectivo
+      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
+      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
+      COLLECTIVO_SETTINGS: collectivo_extensions.settings
+      COLLECTIVO_EXTENSIONS: members
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_URL}
+      VIRTUAL_PORT: 8000
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      CELERY_BROKER: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      CELERY_BACKEND: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+    labels:
+      io.portainer.accesscontrol.teams: mila
+    depends_on:
+      - collectivo
+      - redis
+      
   # A communication broker for celery.
   redis:
     container_name: redis
