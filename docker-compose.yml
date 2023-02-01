@@ -94,12 +94,12 @@ services:
     depends_on:
       - collectivo
       - redis
-      
+
   # A celery worker that runs in the background and processes the scheduled tasks.
   celery-beat:
     container_name: celery-beat
     restart: always
-    image: milawien/collectivo:v0.3.1
+    image: milawien/collectivo:v0.4.0
     command: celery -A collectivo_app beat -l info
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
