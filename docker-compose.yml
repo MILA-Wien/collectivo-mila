@@ -208,7 +208,7 @@ services:
   # A frontend web application.
   collectivo-ux:
     container_name: collectivo-mila-ux
-    image: milawien/collectivo-ux:v0.3.0
+    image: milawien/collectivo-ux:v0.3.1
     restart: always
     environment:
       VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
