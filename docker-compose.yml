@@ -263,6 +263,89 @@ services:
       - keycloak-db
     labels:
       io.portainer.accesscontrol.teams: mila
+  # Habidat Direktkredit Verwaltung
+  habidat-db:
+    image: mariadb
+    restart: always
+    volumes:
+      - ./docker/habidat/db:/var/lib/mysql
+    environment:
+      # please change:
+      - MYSQL_PASSWORD=${HABIDAT_DB_SECRET}
+      # no need to change for default setup:
+      - MYSQL_DATABASE=${HABIDAT_DB_DB}
+      - MYSQL_USER=${HABIDAT_DB_USER}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    logging:
+      options:
+        max-size: 50m
+
+  habidat:
+    container_name: habidat
+    image: habidat/direktkredit:1.1
+    restart: always
+    volumes:
+      - ./docker/habidat/config/config.sample.json:/habidat/config/config.sample.json
+      - ./docker/habidat/files:/habidat/public/files
+      - ./docker/habidat/images:/habidat/public/images
+      - ./docker/habidat/upload:/habidat/upload
+    environment:
+      # please change:
+      - HABIDAT_DK_PROJECT_ID=project
+      - HABIDAT_DK_PROJECT_NAME=Mila Wien
+      - HABIDAT_DK_PROJECT_EMAIL=mitmachen@mila.wien
+      - HABIDAT_DK_PROJECT_LOGO=logo.gif
+      - HABIDAT_DK_ADMIN_EMAIL=mitmachen@mila.wien
+      - HABIDAT_DK_ADMIN_USERNAME=${HABIDAT_ADMIN_USERNAME}
+      - HABIDAT_DK_ADMIN_PASSWORD=${HABIDAT_ADMIN_SECRET}
+      - HABIDAT_DK_SESSION_SECRET=${HABIDAT_JWT_SECRET}
+      # no need to change for default setup:
+      - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_USER}@habidat-db/${HABIDAT_DB_DB}
+      - HABIDAT_DK_PORT_HTTP=80
+      - HABIDAT_DK_AUTH_ADMIN_METHOD=local,oidc # ldap is also possible
+      # only if admin auth method includes LDAP:
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_URI=ldap://host:port
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_HOST=host
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_PORT=389
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_BINDDN=cn=ldap-read,dc=example,dc=com
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_PASSWORD=secret
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_BASE=dc=example,dc=com
+      #- HABIDAT_DK_AUTH_ADMIN_LDAP_SEARCHFILTER=(cn={{username}})
+      # only if admin auth method includes oidc
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=Mein.mila.wien Admin
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_CALLBACK_URL=${HABIDAT_SERVER_URL}/login-oidc-cb-admin
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_AUTH_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/auth
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_TOKEN_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/token
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_USERINFO_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/userinfo
+      # list of user auth methods (local or oidc)
+      - HABIDAT_DK_AUTH_USER_METHOD=oidc
+      # only if user auth method includes OIDC:
+      - HABIDAT_DK_AUTH_USER_OIDC_LABEL=Mein.mila.wien
+      - HABIDAT_DK_AUTH_USER_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
+      - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
+      - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
+      - HABIDAT_DK_AUTH_USER_OIDC_CALLBACK_URL=${HABIDAT_SERVER_URL}/login-oidc-cb
+      - HABIDAT_DK_AUTH_USER_OIDC_AUTH_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/auth
+      - HABIDAT_DK_AUTH_USER_OIDC_TOKEN_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/token
+      - HABIDAT_DK_AUTH_USER_OIDC_USERINFO_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/userinfo
+      - VIRTUAL_HOST=${HABIDAT_SERVER_URL}
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=${HABIDAT_SERVER_URL}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      habidat-db:
+        condition: service_healthy
+    links:
+      - habidat-db
+    logging:
+      options:
+        max-size: 50m
 
 volumes:
   collectivo-db-data:
