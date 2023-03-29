@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-
   # A customized instance of collectivo for MILA.
   collectivo:
     container_name: collectivo-mila
@@ -11,11 +10,11 @@ services:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
       - ./docker/static:/app/static
     command: >
-       sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
-              while ! nc -z keycloak 8080; do sleep 1; done &&
-              python manage.py migrate &&
-              gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
-              "
+      sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
+             while ! nc -z keycloak 8080; do sleep 1; done &&
+             python manage.py migrate &&
+             gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
+             "
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -41,10 +40,10 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
-      CELERY_BACKEND: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     labels:
-          io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo-db
       - keycloak
@@ -87,12 +86,13 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
-      CELERY_BACKEND: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
+      - keycloak
       - redis
 
   # A celery worker that runs in the background and processes the scheduled tasks.
@@ -129,13 +129,15 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
-      CELERY_BACKEND: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
+      - keycloak
       - redis
+
   # A communication broker for celery.
   redis:
     container_name: redis
@@ -143,7 +145,7 @@ services:
     command: >
       --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 1000mb --maxmemory-policy volatile-lru
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
     deploy:
       resources:
         limits:
