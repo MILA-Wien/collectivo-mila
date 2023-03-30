@@ -248,6 +248,7 @@ services:
     volumes:
       - ./docker/habidat/db:/var/lib/mysql
     environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
       # please change:
       - MYSQL_PASSWORD=${HABIDAT_DB_SECRET}
       # no need to change for default setup:
@@ -279,7 +280,7 @@ services:
       - HABIDAT_DK_ADMIN_USERNAME=${HABIDAT_ADMIN_USERNAME}
       - HABIDAT_DK_ADMIN_PASSWORD=${HABIDAT_ADMIN_SECRET}
       - HABIDAT_DK_SESSION_SECRET=${HABIDAT_JWT_SECRET}
-      - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_USER}@habidat-db/${HABIDAT_DB_DB}
+      - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_SECRET}@habidat-db/${HABIDAT_DB_DB}
       - HABIDAT_DK_PORT_HTTP=80
       - HABIDAT_DK_AUTH_ADMIN_METHOD=local,oidc # ldap is also possible
       - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=Mein.mila.wien Admin
