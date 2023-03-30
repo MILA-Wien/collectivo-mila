@@ -261,11 +261,13 @@ services:
       io.portainer.accesscontrol.teams: mila
   # Habidat Direktkredit Verwaltung
   habidat-db:
+    container_name: habidat-db
     image: mariadb
     restart: always
     volumes:
       - ./docker/habidat/db:/var/lib/mysql
     environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
       # please change:
       - MYSQL_PASSWORD=${HABIDAT_DB_SECRET}
       # no need to change for default setup:
