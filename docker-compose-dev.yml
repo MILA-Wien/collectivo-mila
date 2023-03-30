@@ -1,21 +1,20 @@
 version: "3.9"
 
 services:
-
   # A customized instance of collectivo for MILA.
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:v0.3.0
+    image: milawien/collectivo:latest
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
       - ./docker/static:/app/static
     command: >
-       sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
-              while ! nc -z keycloak 8080; do sleep 1; done &&
-              python manage.py migrate &&
-              gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
-              "
+      sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
+             while ! nc -z keycloak 8080; do sleep 1; done &&
+             python manage.py migrate &&
+             gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
+             "
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -27,7 +26,7 @@ services:
       KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
       KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
       COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: members
+      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -46,7 +45,7 @@ services:
       DEBUG: 1
       DEVELOPMENT: 1
     labels:
-          io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo-db
       - keycloak
@@ -58,7 +57,7 @@ services:
   celery:
     container_name: celery
     restart: always
-    image: milawien/collectivo:v0.3.0
+    image: milawien/collectivo:latest
     command: celery -A collectivo_app worker -l info
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
@@ -74,7 +73,7 @@ services:
       KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
       KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
       COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: members
+      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -100,7 +99,7 @@ services:
   celery-beat:
     container_name: celery-beat
     restart: always
-    image: milawien/collectivo:v0.3.1
+    image: milawien/collectivo:latest
     command: celery -A collectivo_app beat -l info
     volumes:
       - ./collectivo_extensions:/collectivo-app/collectivo_extensions
@@ -116,7 +115,7 @@ services:
       KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
       KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
       COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: members
+      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -130,14 +129,14 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
-      CELERY_BACKEND: 'redis://:${REDIS_PASSWORD}@redis:6379/0'
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
       - redis
-      
+
   # A communication broker for celery.
   redis:
     container_name: redis
@@ -242,7 +241,7 @@ services:
       - keycloak-db
     links:
       - keycloak-db
- # Habidat Direktkredit Verwaltung
+  # Habidat Direktkredit Verwaltung
   habidat-db:
     image: mariadb
     restart: always
@@ -272,7 +271,6 @@ services:
       - ./docker/habidat/images:/habidat/public/images
       - ./docker/habidat/upload:/habidat/upload
     environment:
-      # please change:
       - HABIDAT_DK_PROJECT_ID=project
       - HABIDAT_DK_PROJECT_NAME=Mila Wien
       - HABIDAT_DK_PROJECT_EMAIL=mitmachen@mila.wien
@@ -281,19 +279,9 @@ services:
       - HABIDAT_DK_ADMIN_USERNAME=${HABIDAT_ADMIN_USERNAME}
       - HABIDAT_DK_ADMIN_PASSWORD=${HABIDAT_ADMIN_SECRET}
       - HABIDAT_DK_SESSION_SECRET=${HABIDAT_JWT_SECRET}
-      # no need to change for default setup:
       - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_USER}@habidat-db/${HABIDAT_DB_DB}
       - HABIDAT_DK_PORT_HTTP=80
       - HABIDAT_DK_AUTH_ADMIN_METHOD=local,oidc # ldap is also possible
-      # only if admin auth method includes LDAP:
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_URI=ldap://host:port
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_HOST=host
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_PORT=389
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_BINDDN=cn=ldap-read,dc=example,dc=com
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_PASSWORD=secret
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_BASE=dc=example,dc=com
-      #- HABIDAT_DK_AUTH_ADMIN_LDAP_SEARCHFILTER=(cn={{username}})
-      # only if admin auth method includes oidc
       - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=Mein.mila.wien Admin
       - HABIDAT_DK_AUTH_ADMIN_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
       - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
@@ -302,9 +290,7 @@ services:
       - HABIDAT_DK_AUTH_ADMIN_OIDC_AUTH_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/auth
       - HABIDAT_DK_AUTH_ADMIN_OIDC_TOKEN_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/token
       - HABIDAT_DK_AUTH_ADMIN_OIDC_USERINFO_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/userinfo
-      # list of user auth methods (local or oidc)
       - HABIDAT_DK_AUTH_USER_METHOD=oidc
-      # only if user auth method includes OIDC:
       - HABIDAT_DK_AUTH_USER_OIDC_LABEL=Mein.mila.wien
       - HABIDAT_DK_AUTH_USER_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
       - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
