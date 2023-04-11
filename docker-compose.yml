@@ -40,7 +40,7 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      DIREKTKREDIT_SERVER_URL: ${HABIDAT_SERVER_URL}
+      DIREKTKREDIT_SERVER_URL: https://${HABIDAT_SERVER_URL}
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
