@@ -143,3 +143,6 @@ docker/static
 
 # keycloak export
 docker/keycloak/export
+
+#habidat configs
+docker/habidat/config

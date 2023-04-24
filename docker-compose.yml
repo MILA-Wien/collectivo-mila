@@ -293,7 +293,7 @@ services:
     image: habidat/direktkredit:1.1
     restart: always
     volumes:
-      - ./docker/habidat/config/config.sample.json:/habidat/config/config.sample.json
+      - ./docker/habidat/config/:/habidat/config/
       - ./docker/habidat/files:/habidat/public/files
       - ./docker/habidat/images:/habidat/public/images
       - ./docker/habidat/upload:/habidat/upload

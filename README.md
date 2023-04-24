@@ -18,3 +18,14 @@ For local testing of this repository, follow these steps:
 4. Add the following line to your `/etc/hosts/` file: `127.0.0.1 keycloak keycloak.local collectivo.local collectivo.ux`
 5. Run `docker compose -f ./docker-compose-dev.yml up -d`
 6. Access your instance via https://collectivo.ux, https://collectivo.local, and https://keycloak.local (accept security risk on each)
+
+
+## Habidat
+
+In order to set up the habidat integration, you need to start the container without a volume mounted to config and then run the following commands:
+
+```
+cd ./docker/habidat && docker cp habidat:/app/config ./config
+```
+
+Then you can start the container with the volume mounted to config.
