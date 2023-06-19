@@ -25,6 +25,7 @@ extensions:
   - collectivo.dashboard
   - collectivo.profiles
   - collectivo.memberships
+  - collectivo.memberships.emails
   - collectivo.tags
   - collectivo.emails
   - collectivo.emails.tags

@@ -54,7 +54,10 @@ services:
     command: celery -A collectivo_app worker -l info
     build: ./collectivo
     volumes:
+      - ../collectivo/collectivo_app:/collectivo_app
+      - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -92,7 +95,10 @@ services:
     command: celery -A collectivo_app beat -l info
     build: ./collectivo
     volumes:
+      - ../collectivo/collectivo_app:/collectivo_app
+      - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db

@@ -12,8 +12,10 @@ class LotzappSettingsSerializer(serializers.ModelSerializer):
         """Serializer settings."""
 
         model = models.LotzappSettings
-        fields = "__all__"
-        extra_kwargs = {"lotzapp_pass": {"write_only": True}}
+        exclude = ["id"]
+        extra_kwargs = {
+            "lotzapp_pass": {"write_only": True, "required": False}
+        }
 
 
 class LotzappSyncSerializer(serializers.ModelSerializer):

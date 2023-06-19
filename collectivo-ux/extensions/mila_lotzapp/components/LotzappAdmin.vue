@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ObjectDetail from "@/components/datatable/ObjectDetail.vue";
 import ObjectLoader from "@/components/datatable/ObjectLoader.vue";
 import { useMainStore } from "@/stores/main";
 import { useMenuStore } from "@/stores/menu";
@@ -21,10 +20,6 @@ menuStore.setTitle("Lotzapp");
           :store="mainStore"
           :name="'lotzappSync'"
           :default-columns="['date', 'status', 'type', 'status_message']" />
-      </TabPanel>
-      <TabPanel :header="t('Settings')">
-        <ObjectDetail :store="mainStore" :name="'lotzappSettings'">
-        </ObjectDetail>
       </TabPanel>
     </TabView>
   </div>
