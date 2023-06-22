@@ -3,7 +3,6 @@ version: "3.9"
 services:
   # A customized instance of collectivo for MILA.
   collectivo:
-    container_name: collectivo-mila
     restart: always
     image: milawien/collectivo:v0.6.3
     volumes:
@@ -58,7 +57,6 @@ services:
   # A celery worker that runs in the background.
   # Image & environment should be the same as collectivo-mila.
   celery:
-    container_name: celery
     restart: always
     image: milawien/collectivo:v0.6.3
     command: celery -A collectivo_app worker -l info
@@ -104,7 +102,6 @@ services:
 
   # A celery worker that runs in the background and processes the scheduled tasks.
   celery-beat:
-    container_name: celery-beat
     restart: always
     image: milawien/collectivo:v0.6.3
     command: celery -A collectivo_app beat -l info
@@ -149,7 +146,6 @@ services:
       - redis
   # A communication broker for celery.
   redis:
-    container_name: redis
     image: redis:7.0-alpine
     command: >
       --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 1000mb
@@ -165,7 +161,6 @@ services:
 
   # A static files server for django.
   collectivo-static:
-    container_name: colletivo-mila-static
     image: nginx:alpine
     volumes:
       - ./docker/static:/app/static
@@ -175,38 +170,8 @@ services:
     labels:
       io.portainer.accesscontrol.teams: mila
 
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy:alpine
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/logs:/var/log/nginx
-      - ./nginx/conf.d:/etc/nginx/conf.d:rw
-      - ./certs:/etc/nginx/certs:ro
-      - /usr/share/nginx/html
-      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
-      - ./nginx/html:/usr/share/nginx/html
-      - ./nginx/dhparam:/etc/nginx/dhparam
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    restart: always
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
-
-  letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion:dev
-    container_name: letsencrypt
-    volumes_from:
-      - nginx-proxy
-    volumes:
-      - ./certs:/etc/nginx/certs:rw
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:rw
-
   # A PostgreSQL database.
   collectivo-db:
-    container_name: collectivo-mila-db
     image: postgres:14-alpine
     volumes:
       - collectivo-db-data:/var/lib/postgresql/data
@@ -219,7 +184,6 @@ services:
 
   # A frontend web application.
   collectivo-ux:
-    container_name: collectivo-mila-ux
     image: milawien/collectivo-ux:v0.5.3
     restart: always
     environment:
@@ -234,7 +198,6 @@ services:
 
   # Database for keycloak
   keycloak-db:
-    container_name: keycloak-db
     image: postgres:14-alpine
     volumes:
       - keycloak-db-data:/var/lib/postgresql/data
@@ -248,7 +211,6 @@ services:
   # Keycloak for authentication.
   keycloak:
     build: ./docker/keycloak
-    container_name: collectivo-mila-keycloak
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -277,7 +239,6 @@ services:
       io.portainer.accesscontrol.teams: mila
   # Habidat Direktkredit Verwaltung
   habidat-db:
-    container_name: habidat-db
     image: mariadb
     restart: always
     volumes:
@@ -298,7 +259,6 @@ services:
         max-size: 50m
 
   habidat:
-    container_name: habidat
     image: habidat/direktkredit:1.1
     restart: always
     volumes:
