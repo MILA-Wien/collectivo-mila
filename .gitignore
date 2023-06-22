@@ -4,7 +4,11 @@ node_modules/
 # Docker
 .env
 certs
-nginx
+nginx/conf.d
+nginx/dhparam
+nginx/html
+nginx/logs
+nginx/vhost.d
 docker/keycloak/imported/imported.flag
 
 
