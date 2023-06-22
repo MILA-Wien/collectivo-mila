@@ -31,6 +31,10 @@ jobs:
           docker-compose build collectivo-ux
           docker-compose up -d collectivo-ux
           docker-compose build collectivo
+      - name: Prepare for tests
+        run: |
+          docker-compose run --rm collectivo sh -c "python manage.py migrate"
+  
       - name: Test
         run: |
           docker-compose run --rm collectivo sh -c "python manage.py test && flake8"
