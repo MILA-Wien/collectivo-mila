@@ -22,6 +22,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Build containers 
+        run: |
+          cp .env.example .env
+          docker-compose up -d collectivo-db
+          docker-compose build keycloak
+          docker-compose up -d keycloak
+          docker-compose build collectivo-ux
+          docker-compose up -d collectivo-ux
+          docker-compose build collectivo
       - name: Add hosts to /etc/hosts
         run: |
           sudo echo "127.0.0.1 collectivo.local" | sudo tee -a /etc/hosts
@@ -36,11 +45,4 @@ jobs:
           done
       - name: Test
         run: |
-          cp .env.example .env
-          docker-compose up -d collectivo-db
-          docker-compose build keycloak
-          docker-compose up -d keycloak
-          docker-compose build collectivo-ux
-          docker-compose up -d collectivo-ux
-          docker-compose build collectivo
           docker-compose run --rm collectivo sh -c "python manage.py test && flake8"
