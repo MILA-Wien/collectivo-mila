@@ -1,5 +1,5 @@
 # Use node as base image
-FROM node:18 AS build-env-2
+FROM node:18 AS build-env
 
 # Create app directory
 WORKDIR /app
