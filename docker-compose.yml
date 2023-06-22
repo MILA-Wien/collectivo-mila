@@ -8,6 +8,7 @@ services:
     build: ./collectivo
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
     command: >
       sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&

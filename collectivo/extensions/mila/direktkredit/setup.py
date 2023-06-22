@@ -1,9 +1,12 @@
 """Setup function of the mila direktkredit extension."""
+import logging
 import os
 
 from collectivo.dashboard.models import DashboardTile, DashboardTileButton
 from collectivo.extensions.models import Extension
 from collectivo.menus.models import MenuItem
+
+logger = logging.getLogger(__name__)
 
 
 def setup(sender, **kwargs):
@@ -47,7 +50,6 @@ def setup(sender, **kwargs):
     tile.buttons.set([button])
 
     # Admin objects
-    # TODO Warning if os environ var is missing
     MenuItem.register(
         name="direktkredit_admin",
         label="Direct loans",
@@ -59,3 +61,7 @@ def setup(sender, **kwargs):
         target="link_blank",
         order=29,
     )
+
+    # Warning if env var is missing
+    if os.environ.get("HABIDAT_SERVER_URL") is None:
+        logger.warn("HABIDAT_SERVER_URL is not set.")
