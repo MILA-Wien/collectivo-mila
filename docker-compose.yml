@@ -4,8 +4,9 @@ services:
   # A customized instance of collectivo for MILA.
   collectivo:
     restart: always
-    image: milawien/collectivo:v0.6.3
+    build: ./collectivo
     volumes:
+      - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
       - ./docker/static:/app/static
     command: >
       sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
@@ -19,13 +20,10 @@ services:
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_EXTENSIONS:
-        profiles, memberships, emails, emails.tags, tags, payments,
-        memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET_KEY}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -33,18 +31,16 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
-      VIRTUAL_HOST: ${COLLECTIVO_URL}
-      VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       DIREKTKREDIT_SERVER_URL: https://${HABIDAT_SERVER_URL}
       LOTZAPP_URL: "${LOTZAPP_URL}"
       LOTZAPP_USER: "${LOTZAPP_USER}"
       LOTZAPP_PASS: "${LOTZAPP_PASS}"
+      VIRTUAL_HOST: ${COLLECTIVO_URL}
+      VIRTUAL_PORT: 8000
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
@@ -58,9 +54,10 @@ services:
   # Image & environment should be the same as collectivo-mila.
   celery:
     restart: always
-    image: milawien/collectivo:v0.6.3
+    build: ./collectivo
     command: celery -A collectivo_app worker -l info
     volumes:
+      - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -68,13 +65,10 @@ services:
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_EXTENSIONS:
-        profiles, memberships, emails, emails.tags, tags, payments,
-        memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET_KEY}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -82,18 +76,16 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      DIREKTKREDIT_SERVER_URL: https://${HABIDAT_SERVER_URL}
+      LOTZAPP_URL: "${LOTZAPP_URL}"
+      LOTZAPP_USER: "${LOTZAPP_USER}"
+      LOTZAPP_PASS: "${LOTZAPP_PASS}"
       VIRTUAL_HOST: ${COLLECTIVO_URL}
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      DIREKTKREDIT_SERVER_URL: ${HABIDAT_SERVER_URL}
-      LOTZAPP_URL: "${LOTZAPP_URL}"
-      LOTZAPP_USER: "${LOTZAPP_USER}"
-      LOTZAPP_PASS: "${LOTZAPP_PASS}"
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
@@ -103,9 +95,10 @@ services:
   # A celery worker that runs in the background and processes the scheduled tasks.
   celery-beat:
     restart: always
-    image: milawien/collectivo:v0.6.3
+    build: ./collectivo
     command: celery -A collectivo_app beat -l info
     volumes:
+      - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -113,13 +106,10 @@ services:
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_EXTENSIONS:
-        profiles, memberships, emails, emails.tags, tags, payments,
-        memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET_KEY}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -127,23 +117,22 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      DIREKTKREDIT_SERVER_URL: https://${HABIDAT_SERVER_URL}
+      LOTZAPP_URL: "${LOTZAPP_URL}"
+      LOTZAPP_USER: "${LOTZAPP_USER}"
+      LOTZAPP_PASS: "${LOTZAPP_PASS}"
       VIRTUAL_HOST: ${COLLECTIVO_URL}
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      DIREKTKREDIT_SERVER_URL: ${HABIDAT_SERVER_URL}
-      LOTZAPP_URL: "${LOTZAPP_URL}"
-      LOTZAPP_USER: "${LOTZAPP_USER}"
-      LOTZAPP_PASS: "${LOTZAPP_PASS}"
     labels:
       io.portainer.accesscontrol.teams: mila
     depends_on:
       - collectivo
       - redis
+
   # A communication broker for celery.
   redis:
     image: redis:7.0-alpine
@@ -184,15 +173,16 @@ services:
 
   # A frontend web application.
   collectivo-ux:
-    image: milawien/collectivo-ux:v0.5.3
+    container_name: collectivo-mila-ux
+    build: ./collectivo-ux
     restart: always
     environment:
       VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
       VIRTUAL_PORT: 80
       LETSENCRYPT_HOST: ${COLLECTIVO_UX_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      VITE_APP_API: ${COLLECTIVO_UX_API_URL}
-      VITE_KEYCLOAK_URL: ${COLLECTIVO_UX_KEYCLOAK_URL}
+      VITE_APP_API: ${COLLECTIVO_URL}
+      VITE_KEYCLOAK_URL: ${KEYCLOAK_URL}
     labels:
       io.portainer.accesscontrol.teams: mila
 
@@ -214,7 +204,7 @@ services:
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_SERVER_URL}
+      KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_URL}
       KEYCLOAK_IMPORT: /tmp/collectivo-realm.json
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
@@ -222,10 +212,10 @@ services:
       KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
       KC_DB_URL_HOST: ${KEYCLOAK_DB_HOST}
       KC_DB_URL_PORT: 5432
-      KC_HOSTNAME: ${KEYCLOAK_SERVER_URL}
-      VIRTUAL_HOST: ${KEYCLOAK_SERVER_URL}
+      KC_HOSTNAME: ${KEYCLOAK_URL}
+      VIRTUAL_HOST: ${KEYCLOAK_URL}
       VIRTUAL_PORT: 8080
-      LETSENCRYPT_HOST: ${KEYCLOAK_SERVER_URL}
+      LETSENCRYPT_HOST: ${KEYCLOAK_URL}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     volumes:
       - ./docker/keycloak/import/collectivo-realm.json:/tmp/collectivo-realm.json

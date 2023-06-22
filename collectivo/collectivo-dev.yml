@@ -1,0 +1,35 @@
+# Configuration file for collectivo
+
+db_name: ${DB_NAME}
+db_host: ${DB_HOST}
+db_user: ${DB_USER}
+db_pass: ${DB_PASSWORD}
+secret_key: ${SECRET_KEY}
+allowed_hosts: ${ALLOWED_HOSTS}
+allowed_origins: ${ALLOWED_ORIGINS}
+
+development: true
+example_data: true
+api_docs: true
+
+extensions:
+  - collectivo.core
+  - collectivo.auth.keycloak:
+      - server_url: ${KEYCLOAK_URL}
+      - realm_name: collectivo
+      - client_id: collectivo
+      - client_secret: ${KEYCLOAK_CLIENT_SECRET}
+  - collectivo.menus
+  - collectivo.extensions
+  - collectivo.components
+  - collectivo.dashboard
+  - collectivo.profiles
+  - collectivo.memberships
+  - collectivo.tags
+  - collectivo.emails
+  - collectivo.emails.tags
+  - collectivo.payments
+  - collectivo.shifts
+  - mila.direktkredit
+  - mila.registration
+  - mila.lotzapp

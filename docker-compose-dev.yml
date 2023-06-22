@@ -5,28 +5,29 @@ services:
   collectivo:
     container_name: collectivo-mila
     restart: always
-    image: milawien/collectivo:latest
+    build: ./collectivo
     volumes:
-      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ../collectivo/collectivo_app:/collectivo_app
+      - ../collectivo/collectivo:/collectivo_app/collectivo
+      - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
+
       - ./docker/static:/app/static
     command: >
-      sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
-             while ! nc -z keycloak 8080; do sleep 1; done &&
-             python manage.py migrate &&
-             gunicorn collectivo_app.wsgi:application --bind 0.0.0.0:8000
-             "
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -34,33 +35,26 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
-      VIRTUAL_HOST: ${COLLECTIVO_URL}
-      VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: redis://redis:6379/0
-      CELERY_BACKEND: redis://redis:6379/0
-      DEBUG: 1
-      DEVELOPMENT: 1
-    labels:
-      io.portainer.accesscontrol.teams: mila
+      HABIDAT_SERVER_URL: ${HABIDAT_SERVER_URL}
     depends_on:
-      - collectivo-db
-      - keycloak
-    links:
-      - keycloak
+      collectivo-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
 
   # A celery worker that runs in the background.
   # Image & environment should be the same as collectivo-mila.
   celery:
     container_name: celery
     restart: always
-    image: milawien/collectivo:latest
     command: celery -A collectivo_app worker -l info
+    build: ./collectivo
     volumes:
-      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -68,12 +62,12 @@ services:
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -81,28 +75,24 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
-      VIRTUAL_HOST: ${COLLECTIVO_URL}
-      VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: redis://redis:6379/0
-      CELERY_BACKEND: redis://redis:6379/0
-      DEBUG: 1
-      DEVELOPMENT: 1
+      HABIDAT_SERVER_URL: ${HABIDAT_SERVER_URL}
     depends_on:
-      - collectivo
-      - redis
+      collectivo-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
 
-  # A celery worker that runs in the background and processes the scheduled tasks.
+  # A celery worker that runs scheduled tasks in the background.
+  # Image & environment should be the same as collectivo-mila.
   celery-beat:
     container_name: celery-beat
     restart: always
-    image: milawien/collectivo:latest
     command: celery -A collectivo_app beat -l info
+    build: ./collectivo
     volumes:
-      - ./collectivo_extensions:/collectivo-app/collectivo_extensions
+      - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -110,12 +100,12 @@ services:
       DB_USER: ${COLLECTIVO_DB_USER}
       DB_PASS: ${COLLECTIVO_DB_PASSWORD}
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
-      KEYCLOAK_CLIENT_ID: collectivo
-      KEYCLOAK_REALM_NAME: collectivo
-      KEYCLOAK_SERVER_URL: ${COLLECTIVO_KEYCLOAK_SERVER_URL}
-      KEYCLOAK_CLIENT_SECRET_KEY: ${KEYCLOAK_CLIENT_SECRET_KEY}
-      COLLECTIVO_SETTINGS: collectivo_extensions.settings
-      COLLECTIVO_EXTENSIONS: profiles, memberships, emails, emails.tags, tags, payments, memberships.payments, shifts
+      ALLOWED_HOSTS: ${COLLECTIVO_URL}
+      ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
+      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -123,25 +113,26 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-      ALLOWED_HOSTS: ${COLLECTIVO_URL}
-      CORS_ALLOWED_ORIGINS: https://${COLLECTIVO_UX_URL}
-      VIRTUAL_HOST: ${COLLECTIVO_URL}
-      VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${COLLECTIVO_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-      CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
-    labels:
-      io.portainer.accesscontrol.teams: mila
+      HABIDAT_SERVER_URL: ${HABIDAT_SERVER_URL}
     depends_on:
-      - collectivo
-      - redis
+      collectivo-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
 
   # A communication broker for celery.
   redis:
     container_name: redis
     image: redis:7.0-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    command: >
+      --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 1000mb
+      --maxmemory-policy volatile-lru
 
+  # A static files server for django.
   collectivo-static:
     container_name: colletivo-mila-static
     image: nginx:alpine
@@ -153,30 +144,6 @@ services:
       - ./docker/nginx/error.html:/usr/share/nginx/html/index.html
     restart: always
 
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy:alpine
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/logs:/var/log/nginx
-      - ./nginx/conf.d:/etc/nginx/conf.d:rw
-      - ./certs:/etc/nginx/certs:ro
-      - /usr/share/nginx/html
-      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
-      - ./nginx/html:/usr/share/nginx/html
-      - ./nginx/dhparam:/etc/nginx/dhparam
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    restart: always
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
-  self-signed:
-    image: sebastienheyd/self-signed-proxy-companion
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs:/etc/nginx/certs:rw
-
   # A PostgreSQL database.
   collectivo-db:
     container_name: collectivo-mila-db
@@ -187,131 +154,55 @@ services:
       POSTGRES_DB: collectivo_db
       POSTGRES_USER: ${COLLECTIVO_DB_USER}
       POSTGRES_PASSWORD: ${COLLECTIVO_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # A frontend web application.
+  # Frontend for collectivo.
   collectivo-ux:
-    container_name: collectivo-mila-ux
-    image: milawien/collectivo-ux:latest
+    container_name: collectivo-ux
+    command: yarn dev -- --host
+    build:
+      # ./collectivo-ux
+      context: ./collectivo-ux
+      dockerfile: ./Dockerfile-dev
+    volumes:
+      - ../collectivo-ux:/app
+      - ./collectivo-ux/collectivo.json:/app/src/collectivo.json
+      - ./collectivo-ux/extensions/mila_direktkredit:/app/src/extensions/mila_direktkredit
+      - ./collectivo-ux/extensions/mila_registration:/app/src/extensions/mila_registration
+      - ./collectivo-ux/extensions/mila_lotzapp:/app/src/extensions/mila_lotzapp
     restart: always
     environment:
-      VIRTUAL_HOST: ${COLLECTIVO_UX_URL}
-      VIRTUAL_PORT: 80
-      LETSENCRYPT_HOST: ${COLLECTIVO_UX_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      SELF_SIGNED_HOST: ${COLLECTIVO_UX_URL}
-      VITE_APP_API: ${COLLECTIVO_UX_API_URL}
-      VITE_KEYCLOAK_URL: ${COLLECTIVO_UX_KEYCLOAK_URL}
+      VITE_APP_API: ${COLLECTIVO_URL}
+      VITE_KEYCLOAK_URL: ${KEYCLOAK_URL}
+    ports:
+      - "8001:80"
+      - "5173:5173"
 
-  # Database for keycloak
-  keycloak-db:
-    container_name: keycloak-db
-    image: postgres:14-alpine
-    volumes:
-      - keycloak-db-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: ${KEYCLOAK_DB_USER}
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
   # Keycloak for authentication.
   keycloak:
-    build: ./docker/keycloak
-    container_name: collectivo-mila-keycloak
+    build: ./docker/keycloak-dev
+    container_name: keycloak-mila
     environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_SERVER_URL}
-      KEYCLOAK_IMPORT: /tmp/collectivo-realm.json
-      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KC_DB_SCHEMA: public
-      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
-      KC_DB_URL_HOST: ${KEYCLOAK_DB_HOST}
-      KC_DB_URL_PORT: 5432
-      KC_HOSTNAME: ${KEYCLOAK_SERVER_URL}
-      VIRTUAL_HOST: ${KEYCLOAK_SERVER_URL}
-      VIRTUAL_PORT: 8080
-      LETSENCRYPT_HOST: ${KEYCLOAK_SERVER_URL}
-      SELF_SIGNED_HOST: ${KEYCLOAK_SERVER_URL}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-    volumes:
-      - ./docker/keycloak/import/collectivo-realm.json:/tmp/collectivo-realm.json
-      - ./docker/keycloak/themes/collectivo:/opt/keycloak/themes/collectivo
-      - ./docker/keycloak/scripts/disable-theme-cache.cli:/opt/jboss/startup-scripts/disable-theme-cache.cli
-    depends_on:
-      - keycloak-db
-    links:
-      - keycloak-db
-  # Habidat Direktkredit Verwaltung
-  habidat-db:
-    image: mariadb
-    restart: always
-    volumes:
-      - ./docker/habidat/db:/var/lib/mysql
-    environment:
-      - MARIADB_RANDOM_ROOT_PASSWORD=yes
-      # please change:
-      - MYSQL_PASSWORD=${HABIDAT_DB_SECRET}
-      # no need to change for default setup:
-      - MYSQL_DATABASE=${HABIDAT_DB_DB}
-      - MYSQL_USER=${HABIDAT_DB_USER}
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      ROOT_LOGLEVEL: ALL
+      KEYCLOAK_LOGLEVEL: DEBUG
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-    logging:
-      options:
-        max-size: 50m
-
-  habidat:
-    container_name: habidat
-    image: habidat/direktkredit:1.1
-    restart: always
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8080/realms/master"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
     volumes:
-      - ./docker/habidat/config/config.sample.json:/habidat/config/config.sample.json
-      - ./docker/habidat/files:/habidat/public/files
-      - ./docker/habidat/images:/habidat/public/images
-      - ./docker/habidat/upload:/habidat/upload
-    environment:
-      - HABIDAT_DK_PROJECT_ID=project
-      - HABIDAT_DK_PROJECT_NAME=Mila Wien
-      - HABIDAT_DK_PROJECT_EMAIL=mitmachen@mila.wien
-      - HABIDAT_DK_PROJECT_LOGO=logo.gif
-      - HABIDAT_DK_ADMIN_EMAIL=mitmachen@mila.wien
-      - HABIDAT_DK_ADMIN_USERNAME=${HABIDAT_ADMIN_USERNAME}
-      - HABIDAT_DK_ADMIN_PASSWORD=${HABIDAT_ADMIN_SECRET}
-      - HABIDAT_DK_SESSION_SECRET=${HABIDAT_JWT_SECRET}
-      - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_SECRET}@habidat-db/${HABIDAT_DB_DB}
-      - HABIDAT_DK_PORT_HTTP=80
-      - HABIDAT_DK_AUTH_ADMIN_METHOD=local,oidc # ldap is also possible
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=Mein.mila.wien Admin
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_CALLBACK_URL=${HABIDAT_SERVER_URL}/login-oidc-cb-admin
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_AUTH_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/auth
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_TOKEN_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/token
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_USERINFO_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/userinfo
-      - HABIDAT_DK_AUTH_USER_METHOD=oidc
-      - HABIDAT_DK_AUTH_USER_OIDC_LABEL=Mein.mila.wien
-      - HABIDAT_DK_AUTH_USER_OIDC_ISSUER=${KEYCLOAK_SERVER_URL}/realms/collectivo
-      - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
-      - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
-      - HABIDAT_DK_AUTH_USER_OIDC_CALLBACK_URL=${HABIDAT_SERVER_URL}/login-oidc-cb
-      - HABIDAT_DK_AUTH_USER_OIDC_AUTH_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/auth
-      - HABIDAT_DK_AUTH_USER_OIDC_TOKEN_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/token
-      - HABIDAT_DK_AUTH_USER_OIDC_USERINFO_URL=${KEYCLOAK_SERVER_URL}/realms/collectivo/protocol/openid-connect/userinfo
-      - VIRTUAL_HOST=${HABIDAT_SERVER_URL}
-      - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=${HABIDAT_SERVER_URL}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-    depends_on:
-      habidat-db:
-        condition: service_healthy
-    links:
-      - habidat-db
-    logging:
-      options:
-        max-size: 50m
+      - ./docker/keycloak/import:/opt/keycloak/data/import:ro
+      - ./docker/keycloak/export:/tmp/export
+      - ./docker/keycloak/healthcheck.sh:/healthcheck.sh
+    command: start-dev --import-realm
+    ports:
+      - "8080:8080"
+
 volumes:
   collectivo-db-data:
-  keycloak-db-data:

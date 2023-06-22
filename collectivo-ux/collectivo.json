@@ -1,0 +1,8 @@
+{
+  "extensions": [
+    "shifts",
+    "mila_direktkredit",
+    "mila_registration",
+    "mila_lotzapp"
+  ]
+}
