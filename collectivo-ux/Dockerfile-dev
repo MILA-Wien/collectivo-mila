@@ -1,7 +1,7 @@
 # Use collectivo-ux as parent image
 # FROM milawien/collectivo-ux:latest
 
-FROM node:18 AS build-env-2
+FROM node:18 AS build-env
 
 # Create app directory
 WORKDIR /app
