@@ -24,7 +24,7 @@ services:
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
       ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
-      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_URL: ${COLLECTIVO_KEYCLOAK_URL}
       KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
       CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
@@ -182,7 +182,7 @@ services:
       - ./collectivo-ux/extensions/mila_lotzapp:/app/src/extensions/mila_lotzapp
     restart: always
     environment:
-      VITE_APP_API: ${COLLECTIVO_URL}
+      VITE_API_URL: ${COLLECTIVO_URL}
       VITE_KEYCLOAK_URL: ${KEYCLOAK_URL}
     ports:
       - "8001:80"

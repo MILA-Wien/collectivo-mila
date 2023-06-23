@@ -1,5 +1,5 @@
 # Use node as base image
-FROM node:18 AS build-env-2
+FROM node:18 AS build-env
 
 # Create app directory
 WORKDIR /app
@@ -22,5 +22,3 @@ RUN yarn build
 FROM nginx:alpine
 COPY --from=build-env /app/dist /usr/share/nginx/html
 COPY ./docker/nginx/nginx.conf /etc/nginx/conf.d/custom.conf
-
-COPY ./docker/collectivo-entrypoint.sh /docker-entrypoint.d/10-collectivo-entrypoint.sh
