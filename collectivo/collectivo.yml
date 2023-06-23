@@ -26,9 +26,10 @@ extensions:
   - collectivo.profiles
   - collectivo.memberships
       - registration_serializers:
-          - update: collectivo.profiles.serializers.ProfileRegisterSerializer
-          - update: collectivo.payments.serializers.PaymentProfileSerializer
-          - create: collectivo.memberships.serializers.MembershipRegisterSerializer
+            - collectivo.profiles.serializers.ProfileRegisterSerializer
+            - collectivo.payments.serializers.PaymentProfileSerializer
+            - collectivo.memberships.serializers.MembershipRegisterSerializer
+
   - collectivo.tags
   - collectivo.emails
   - collectivo.emails.tags
