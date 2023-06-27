@@ -1,13 +1,12 @@
 """Tests of the members extension for users."""
-from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework.test import APIClient
-
 from collectivo.memberships.models import MembershipStatus
 from collectivo.profiles.models import UserProfile
 from collectivo.tags.models import Tag
 from collectivo.utils.test import create_testuser
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APIClient
 
 from . import models
 
