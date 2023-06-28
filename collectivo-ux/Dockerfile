@@ -22,3 +22,4 @@ RUN yarn build
 FROM nginx:alpine
 COPY --from=build-env /app/dist /usr/share/nginx/html
 COPY ./docker/nginx/nginx.conf /etc/nginx/conf.d/custom.conf
+COPY ./docker/collectivo-ux-entrypoint.sh /docker-entrypoint.d/10-collectivo-ux-entrypoint.sh
