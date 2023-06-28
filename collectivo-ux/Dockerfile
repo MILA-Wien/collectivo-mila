@@ -8,7 +8,7 @@ ENV TZ=Europe/Vienna
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install app dependencies
-RUN git clone --depth 1 --branch v0.5.3 https://github.com/MILA-Wien/collectivo-ux .
+RUN git clone --depth 1 --branch v0.6.0 https://github.com/MILA-Wien/collectivo-ux .
 
 # Copy extensions into the root of the collectivo app
 COPY ./extensions /app/extensions

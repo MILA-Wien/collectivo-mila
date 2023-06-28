@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import ObjectDetail from "@/components/datatable/ObjectDetail.vue";
-import ObjectLoader from "@/components/datatable/ObjectLoader.vue";
+import ObjectTable from "@/components/datatable/ObjectTable.vue";
 import { useMainStore } from "@/stores/main";
 import { useMenuStore } from "@/stores/menu";
 import TabPanel from "primevue/tabpanel";
@@ -17,14 +16,10 @@ menuStore.setTitle("Lotzapp");
   <div class="h-full tabview-full-height">
     <TabView lazy>
       <TabPanel :header="t('Synchronisation')">
-        <ObjectLoader
+        <ObjectTable
           :store="mainStore"
           :name="'lotzappSync'"
           :default-columns="['date', 'status', 'type', 'status_message']" />
-      </TabPanel>
-      <TabPanel :header="t('Settings')">
-        <ObjectDetail :store="mainStore" :name="'lotzappSettings'">
-        </ObjectDetail>
       </TabPanel>
     </TabView>
   </div>

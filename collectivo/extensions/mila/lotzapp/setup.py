@@ -10,14 +10,14 @@ from .models import LotzappSettings
 def setup(sender, **kwargs):
     """Initialize extension after database is ready."""
 
-    extension = Extension.register(
+    extension = Extension.objects.register(
         name="mila_lotzapp",
         label="MILA Lotzapp",
         description="Integration with the lotzapp ERP system.",
         version="1.0.0",
     )
 
-    MenuItem.register(
+    MenuItem.objects.register(
         name="lotzapp",
         label="Lotzapp",
         extension=extension,

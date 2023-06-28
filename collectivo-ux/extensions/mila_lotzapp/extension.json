@@ -2,5 +2,6 @@
   "endpoints": {
     "lotzappSync": "/lotzapp/sync/",
     "lotzappSettings": "/lotzapp/settings/"
-  }
+  },
+  "settings_endpoints": ["lotzappSettings"]
 }

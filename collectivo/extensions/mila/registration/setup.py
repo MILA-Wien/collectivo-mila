@@ -9,14 +9,14 @@ from .models import SurveyGroup, SurveySkill
 def setup(sender, **kwargs):
     """Initialize extension after database is ready."""
 
-    extension = Extension.register(
+    extension = Extension.objects.register(
         name="mila_registration",
         label="MILA Registration",
         description="Membership registration for MILA.",
         version="1.0.0",
     )
 
-    DashboardTile.register(
+    DashboardTile.objects.register(
         name="mila_membership_tile",
         label="Membership",
         extension=extension,

@@ -24,7 +24,7 @@ services:
       SECRET_KEY: ${COLLECTIVO_SECRET_KEY}
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
       ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
-      KEYCLOAK_URL: ${COLLECTIVO_KEYCLOAK_URL}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
       KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
       CELERY_BROKER: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       CELERY_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
@@ -54,7 +54,10 @@ services:
     command: celery -A collectivo_app worker -l info
     build: ./collectivo
     volumes:
+      - ../collectivo/collectivo_app:/collectivo_app
+      - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -92,7 +95,10 @@ services:
     command: celery -A collectivo_app beat -l info
     build: ./collectivo
     volumes:
+      - ../collectivo/collectivo_app:/collectivo_app
+      - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
@@ -203,6 +209,18 @@ services:
     command: start-dev --import-realm
     ports:
       - "8080:8080"
+
+  # Documentation
+  docs:
+    container_name: docs
+    build:
+      context: .
+      dockerfile: ./docker/mkdocs/Dockerfile
+    restart: "no"
+    volumes:
+      - ../collectivo:/home/
+    ports:
+      - "8003:8000"
 
 volumes:
   collectivo-db-data:

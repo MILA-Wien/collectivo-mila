@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def setup(sender, **kwargs):
     """Initialize extension after database is ready."""
 
-    extension = Extension.register(
+    extension = Extension.objects.register(
         name="mila_direktkredit",
         label="MILA Direktkredit",
         description="Integration with the direct loan system from habitat.",
@@ -20,13 +20,13 @@ def setup(sender, **kwargs):
     )
 
     # User objects
-    MenuItem.register(
+    MenuItem.objects.register(
         name="direktkredit",
         label="Direktkredite",
         parent="main",
         icon_name="pi-money-bill",
         extension=extension,
-        requires_perm="collectivo.direktkredit.user",
+        requires_perm=("view direktkredite", "mila_direktkredit"),
         link=f"{os.environ.get('HABIDAT_SERVER_URL')}/login-oidc",
         target="link_blank",
     )
@@ -38,25 +38,25 @@ def setup(sender, **kwargs):
         link_type="external",
     )
 
-    tile = DashboardTile.register(
+    tile = DashboardTile.objects.register(
         name="direktkredit_tile",
         label="Direktkredite",
         extension=extension,
         source="db",
         content="Hier kannst du deine Direktkredite einsehen und verwalten.",
-        requires_perm="collectivo.direktkredit.user",
+        requires_perm=("view direktkredite", "mila_direktkredit"),
     )
 
     tile.buttons.set([button])
 
     # Admin objects
-    MenuItem.register(
+    MenuItem.objects.register(
         name="direktkredit_admin",
         label="Direct loans",
         icon_name="pi-money-bill",
         parent="admin",
         extension=extension,
-        requires_perm=("admin", "core"),
+        requires_perm=("manage direktkredite", "mila_direktkredit"),
         link=f"{os.environ.get('HABIDAT_SERVER_URL')}/login-oidc-admin",
         target="link_blank",
         order=29,
