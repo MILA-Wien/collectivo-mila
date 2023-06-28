@@ -6,6 +6,8 @@ services:
     restart: always
     build: ./collectivo
     volumes:
+      # - ../collectivo/collectivo_app:/collectivo_app
+      # - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
       - ./collectivo/extensions/mila:/collectivo_app/mila
       - ./docker/static:/app/static
@@ -24,7 +26,7 @@ services:
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
       ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
-      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET_KEY}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -69,7 +71,7 @@ services:
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
       ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
-      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET_KEY}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
@@ -110,7 +112,7 @@ services:
       ALLOWED_HOSTS: ${COLLECTIVO_URL}
       ALLOWED_ORIGINS: ${COLLECTIVO_UX_URL}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
-      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET_KEY}
+      KEYCLOAK_CLIENT_SECRET: ${COLLECTIVO_KEYCLOAK_CLIENT_SECRET}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USE_SSL: ${EMAIL_USE_SSL}
