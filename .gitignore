@@ -150,3 +150,6 @@ docker/keycloak/export
 
 #habidat
 docker/habidat/
+
+#uploads
+uploads/*

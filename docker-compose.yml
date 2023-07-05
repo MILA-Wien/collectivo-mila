@@ -8,7 +8,7 @@ services:
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
       - ./collectivo/extensions/mila:/collectivo_app/mila
-      - ./docker/static:/app/static
+      - ./uploads:/app/media_root/
     command: >
       sh -c "while ! nc -z collectivo-db 5432; do sleep 1; done &&
              while ! nc -z keycloak 8080; do sleep 1; done &&
@@ -61,7 +61,6 @@ services:
     command: celery -A collectivo_app worker -l info
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
-      - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -102,7 +101,6 @@ services:
     command: celery -A collectivo_app beat -l info
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
-      - ./docker/static:/app/static
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -148,17 +146,6 @@ services:
       resources:
         limits:
           memory: 1024M
-    labels:
-      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
-
-  # A static files server for django.
-  collectivo-static:
-    image: nginx:alpine
-    volumes:
-      - ./docker/static:/app/static
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ./docker/nginx/error.html:/usr/share/nginx/html/index.html
-    restart: always
     labels:
       io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
