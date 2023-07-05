@@ -275,9 +275,9 @@ services:
       - HABIDAT_DK_AUTH_USER_OIDC_AUTH_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/auth
       - HABIDAT_DK_AUTH_USER_OIDC_TOKEN_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/token
       - HABIDAT_DK_AUTH_USER_OIDC_USERINFO_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/userinfo
-      - VIRTUAL_HOST=${LETSENCRYPT_HABIDAT_URL}
+      - VIRTUAL_HOST=${HABIDAT_URL_BASE}
       - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HABIDAT_URL}
+      - LETSENCRYPT_HOST=${HABIDAT_URL_BASE}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
     depends_on:
       habidat-db:
