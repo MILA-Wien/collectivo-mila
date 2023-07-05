@@ -210,7 +210,7 @@ services:
     ports:
       - "8080:8080"
 
-  # Documentation
+  # For Documentation development
   docs:
     container_name: docs
     build:

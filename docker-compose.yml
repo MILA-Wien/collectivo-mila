@@ -38,12 +38,12 @@ services:
       LOTZAPP_URL: "${LOTZAPP_URL}"
       LOTZAPP_USER: "${LOTZAPP_USER}"
       LOTZAPP_PASS: "${LOTZAPP_PASS}"
-      VIRTUAL_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_URL_BASE}
       VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
     depends_on:
       - collectivo-db
       - keycloak
@@ -83,12 +83,12 @@ services:
       LOTZAPP_URL: "${LOTZAPP_URL}"
       LOTZAPP_USER: "${LOTZAPP_USER}"
       LOTZAPP_PASS: "${LOTZAPP_PASS}"
-      VIRTUAL_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_URL_BASE}
       VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
     depends_on:
       - collectivo
       - redis
@@ -124,12 +124,12 @@ services:
       LOTZAPP_URL: "${LOTZAPP_URL}"
       LOTZAPP_USER: "${LOTZAPP_USER}"
       LOTZAPP_PASS: "${LOTZAPP_PASS}"
-      VIRTUAL_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_URL_BASE}
       VIRTUAL_PORT: 8000
-      LETSENCRYPT_HOST: ${LETSENCRYPT_COLLECTIVO_URL}
+      LETSENCRYPT_HOST: ${COLLECTIVO_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
     depends_on:
       - collectivo
       - redis
@@ -147,7 +147,7 @@ services:
         limits:
           memory: 1024M
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
   # A static files server for django.
   collectivo-static:
@@ -158,7 +158,7 @@ services:
       - ./docker/nginx/error.html:/usr/share/nginx/html/index.html
     restart: always
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
   # A PostgreSQL database.
   collectivo-db:
@@ -170,21 +170,21 @@ services:
       POSTGRES_USER: ${COLLECTIVO_DB_USER}
       POSTGRES_PASSWORD: ${COLLECTIVO_DB_PASSWORD}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
   # A frontend web application.
   collectivo-ux:
     build: ./collectivo-ux
     restart: always
     environment:
-      VIRTUAL_HOST: ${LETSENCRYPT_COLLECTIVO_UX_URL}
+      VIRTUAL_HOST: ${COLLECTIVO_UX_URL_BASE}
       VIRTUAL_PORT: 80
-      LETSENCRYPT_HOST: ${LETSENCRYPT_COLLECTIVO_UX_URL}
+      LETSENCRYPT_HOST: ${COLLECTIVO_UX_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       VITE_API_URL: ${COLLECTIVO_URL}
       VITE_KEYCLOAK_URL: ${KEYCLOAK_URL}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
   # Database for keycloak
   keycloak-db:
@@ -196,7 +196,7 @@ services:
       POSTGRES_USER: ${KEYCLOAK_DB_USER}
       POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
 
   # Keycloak for authentication.
   keycloak:
@@ -212,10 +212,10 @@ services:
       KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME}
       KC_DB_URL_HOST: ${KEYCLOAK_DB_HOST}
       KC_DB_URL_PORT: 5432
-      KC_HOSTNAME: ${KEYCLOAK_URL}
-      VIRTUAL_HOST: ${LETSENCRYPT_KEYCLOAK_URL}
+      KC_HOSTNAME: ${KEYCLOAK_URL_BASE}
+      VIRTUAL_HOST: ${KEYCLOAK_URL_BASE}
       VIRTUAL_PORT: 8080
-      LETSENCRYPT_HOST: ${LETSENCRYPT_KEYCLOAK_URL}
+      LETSENCRYPT_HOST: ${KEYCLOAK_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     volumes:
       - ./docker/keycloak/import/collectivo-realm.json:/tmp/collectivo-realm.json
@@ -226,7 +226,8 @@ services:
     links:
       - keycloak-db
     labels:
-      io.portainer.accesscontrol.teams: mila
+      io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
+
   # Habidat Direktkredit Verwaltung
   habidat-db:
     image: mariadb
@@ -258,17 +259,17 @@ services:
       - ./docker/habidat/upload:/habidat/upload
     environment:
       - HABIDAT_DK_PROJECT_ID=project
-      - HABIDAT_DK_PROJECT_NAME=Mila Wien
-      - HABIDAT_DK_PROJECT_EMAIL=mitmachen@mila.wien
+      - HABIDAT_DK_PROJECT_NAME=${HABIDAT_PROJECT_NAME}
+      - HABIDAT_DK_PROJECT_EMAIL=${HABIDAT_PROJECT_EMAIL}
       - HABIDAT_DK_PROJECT_LOGO=logo.gif
-      - HABIDAT_DK_ADMIN_EMAIL=mitmachen@mila.wien
+      - HABIDAT_DK_ADMIN_EMAIL=${HABIDAT_ADMIN_EMAIL}
       - HABIDAT_DK_ADMIN_USERNAME=${HABIDAT_ADMIN_USERNAME}
       - HABIDAT_DK_ADMIN_PASSWORD=${HABIDAT_ADMIN_SECRET}
       - HABIDAT_DK_SESSION_SECRET=${HABIDAT_JWT_SECRET}
       - HABIDAT_DK_DB_URI=mysql://${HABIDAT_DB_USER}:${HABIDAT_DB_SECRET}@habidat-db/${HABIDAT_DB_DB}
       - HABIDAT_DK_PORT_HTTP=80
       - HABIDAT_DK_AUTH_ADMIN_METHOD=local,oidc # ldap is also possible
-      - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=Mein.mila.wien Admin
+      - HABIDAT_DK_AUTH_ADMIN_OIDC_LABEL=${HABIDAT_OIDC_ADMIN_LOGIN_BUTTON_LABEL}
       - HABIDAT_DK_AUTH_ADMIN_OIDC_ISSUER=${KEYCLOAK_URL}/realms/collectivo
       - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
       - HABIDAT_DK_AUTH_ADMIN_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
@@ -277,7 +278,7 @@ services:
       - HABIDAT_DK_AUTH_ADMIN_OIDC_TOKEN_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/token
       - HABIDAT_DK_AUTH_ADMIN_OIDC_USERINFO_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/userinfo
       - HABIDAT_DK_AUTH_USER_METHOD=oidc
-      - HABIDAT_DK_AUTH_USER_OIDC_LABEL=Mein.mila.wien
+      - HABIDAT_DK_AUTH_USER_OIDC_LABEL=${HABIDAT_OIDC_USER_LOGIN_BUTTON_LABEL}
       - HABIDAT_DK_AUTH_USER_OIDC_ISSUER=${KEYCLOAK_URL}/realms/collectivo
       - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_ID=${HABIDAT_KEYCLOAK_CLIENT_ID}
       - HABIDAT_DK_AUTH_USER_OIDC_CLIENT_SECRET=${HABIDAT_KEYCLOAK_TOKEN}
