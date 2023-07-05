@@ -36,6 +36,8 @@ services:
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
       HABIDAT_SERVER_URL: ${HABIDAT_SERVER_URL}
+      ADMIN_USER: ${COLLECTIVO_ADMIN_USER}
+      ADMIN_PASS: ${COLLECTIVO_ADMIN_PASS}
     depends_on:
       collectivo-db:
         condition: service_healthy

@@ -42,6 +42,8 @@ services:
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL_BASE}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      ADMIN_USER: ${COLLECTIVO_ADMIN_USER}
+      ADMIN_PASS: ${COLLECTIVO_ADMIN_PASS}
     labels:
       io.portainer.accesscontrol.teams: ${PORTAINER_TEAM_ID}
     depends_on:
