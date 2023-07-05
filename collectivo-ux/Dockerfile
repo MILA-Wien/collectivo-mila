@@ -11,7 +11,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN git clone --depth 1 --branch v0.6.0 https://github.com/MILA-Wien/collectivo-ux .
 
 # Copy extensions into the root of the collectivo app
-COPY ./extensions /app/extensions
+COPY ./extensions /app/src/extensions
 
 RUN  yarn install --frozen-lockfile
 
