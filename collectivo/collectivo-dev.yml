@@ -7,6 +7,8 @@ db_pass: ${DB_PASSWORD}
 secret_key: ${SECRET_KEY}
 allowed_hosts: ${ALLOWED_HOSTS}
 allowed_origins: ${ALLOWED_ORIGINS}
+admin_user: ${ADMIN_USER}
+admin_pass: ${ADMIN_PASS}
 
 development: true
 example_data: true

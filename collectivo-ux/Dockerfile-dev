@@ -14,7 +14,8 @@ RUN git clone --depth 1 --branch v0.6.2 https://github.com/MILA-Wien/collectivo-
 
 # Copy extensions into the root of the collectivo app
 COPY ./extensions /app/src/extensions
-COPY ./extensions.json /app/src/extensions.json
+COPY ./collectivo.json /app/src/collectivo.json
+COPY ./favicon.ico /app/public/favicon.ico
 
 RUN  yarn install --frozen-lockfile
 
