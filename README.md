@@ -1,6 +1,6 @@
-# Mein MILA
+# Mein MILA - Collectivo
 
-An instance of [collectivo](https://github.com/MILA-Wien/collectivo/) for the Austrian cooperative [MILA](https://www.mila.wien/), which is available at:
+An instance of [Collectivo](https://github.com/MILA-Wien/collectivo/) for the Austrian cooperative [MILA Mitmach-Supermarkt](https://www.mila.wien/).
 
 - Frontend: https://mein.mila.wien/
 - Backend: https://collectivo.mila.wien/
@@ -8,7 +8,9 @@ An instance of [collectivo](https://github.com/MILA-Wien/collectivo/) for the Au
 
 ## Documentation
 
-The documentation of collectivo can be found [here](https://github.com/MILA-Wien/collectivo/).
+The documentation of Collectivo can be found at https://collectivo.io.
+
+### Local testing
 
 For local testing of this repository, follow these steps:
 
@@ -17,10 +19,17 @@ For local testing of this repository, follow these steps:
 3. Copy `.env.example` to `.env` and adopt all the values.
 4. Add the following line to your `/etc/hosts/` file: `127.0.0.1 keycloak`
 5. Run `docker compose -f ./docker-compose-dev.yml up -d`
-6. Access your instance via https://127.0.0.1, and https://keycloak.local (accept security risk on each)
 
+You can then access the following instances:
 
-## Habidat
+- Frontend: http://localhost:5173/
+- Backend: http://localhost:8000/
+    - Swagger: `api/docs/`
+    - Healthcheck: `api/core/health/`
+- Keycloak: http://localhost:8080/
+- Docs: http://localhost:8003/
+
+### Habidat
 
 In order to set up the habidat integration, you need to start the container without a volume mounted to config and then run the following commands:
 
