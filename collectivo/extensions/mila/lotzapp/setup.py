@@ -1,6 +1,7 @@
 """Setup function of the mila lotzapp extension."""
 import os
 
+from collectivo.core.models import Permission, PermissionGroup
 from collectivo.extensions.models import Extension
 from collectivo.menus.models import MenuItem
 
@@ -17,13 +18,26 @@ def setup(sender, **kwargs):
         version="1.0.0",
     )
 
+    perm_names = [
+        "use_lotzapp",
+    ]
+    superuser = PermissionGroup.objects.get(name="superuser")
+    for perm_name in perm_names:
+        perm = Permission.objects.register(
+            name=perm_name,
+            label=perm_name.replace("_", " ").capitalize(),
+            description=f"Can {perm_name.replace('_', ' ')}",
+            extension=extension,
+        )
+        superuser.permissions.add(perm)
+
     MenuItem.objects.register(
         name="lotzapp",
         label="Lotzapp",
         extension=extension,
         route=extension.name + "/admin",
         icon_name="pi-sync",
-        requires_perm=("admin", "core"),
+        requires_perm=("use_lotzapp", "mila_lotzapp"),
         parent="admin",
         order=30,
     )
