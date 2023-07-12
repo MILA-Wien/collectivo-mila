@@ -11,7 +11,7 @@ services:
       - ../collectivo/collectivo:/collectivo_app/collectivo
       - ./collectivo/collectivo-dev.yml:/collectivo_app/collectivo.yml
       - ./collectivo/extensions/mila:/collectivo_app/mila
-      - ./uploads:/app/media_root/
+      - ./uploads:/collectivo_app/media_root/
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
