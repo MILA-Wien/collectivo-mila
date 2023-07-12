@@ -15,7 +15,7 @@ The documentation of Collectivo can be found at https://collectivo.io.
 For local testing of this repository, follow these steps:
 
 1. Install docker and docker-compose.
-2. Clone the repository.
+2. Clone this repository, the backend repository, and the frontend repository in the same project folder.
 3. Copy `.env.example` to `.env` and adopt all the values.
 4. Add the following line to your `/etc/hosts/` file: `127.0.0.1 keycloak`
 5. Run `docker compose -f ./docker-compose-dev.yml up -d`
