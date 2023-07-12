@@ -61,6 +61,8 @@ services:
     command: celery -A collectivo_app worker -l info
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
+      - ./uploads:/collectivo_app/media_root
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
@@ -101,6 +103,8 @@ services:
     command: celery -A collectivo_app beat -l info
     volumes:
       - ./collectivo/collectivo.yml:/collectivo_app/collectivo.yml
+      - ./collectivo/extensions/mila:/collectivo_app/mila
+      - ./uploads:/collectivo_app/media_root
     environment:
       DB_HOST: collectivo-db
       DB_NAME: collectivo_db
