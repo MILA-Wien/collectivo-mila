@@ -8,12 +8,13 @@ ENV TZ=Europe/Vienna
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install app dependencies
-
-ENV VERSION=v0.6.3
+ENV VERSION=v0.6.4
 RUN git clone --depth 1 --branch ${VERSION} https://github.com/MILA-Wien/collectivo-ux .
+
 # Copy extensions into the root of the collectivo app
 COPY ./collectivo.json /app/src/collectivo.json
 COPY ./extensions /app/src/extensions
+COPY ./favicon.ico /app/public/favicon.ico
 
 RUN  yarn install --frozen-lockfile
 
