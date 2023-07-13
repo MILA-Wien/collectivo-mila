@@ -50,5 +50,6 @@ def setup(sender, **kwargs):
         "Events",
         "Standort",
         "Minimarkt",
+        "Diversität",
     ]:
         SurveyGroup.objects.register(name=gname)
