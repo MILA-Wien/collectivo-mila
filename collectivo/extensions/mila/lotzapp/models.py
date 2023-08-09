@@ -3,12 +3,11 @@ import logging
 
 import requests
 from celery import chord
-from django.contrib.auth import get_user_model
-from django.db import models
-
 from collectivo.payments.models import Invoice
 from collectivo.utils.exceptions import APIException
 from collectivo.utils.models import SingleInstance
+from django.contrib.auth import get_user_model
+from django.db import models
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -223,7 +222,7 @@ class LotzappInvoice(LotzappMixin, models.Model):
         )
 
         data = {
-            "datum": self.invoice.date.strftime("%Y-%m-%d"),
+            "datum": self.invoice.date_created.strftime("%Y-%m-%d"),
             "adresse": lotzapp_address.lotzapp_id,
             "zahlungsmethode": str(zahlungsmethode),
             "positionen": [
