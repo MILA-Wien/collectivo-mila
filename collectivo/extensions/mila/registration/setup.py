@@ -41,13 +41,12 @@ def setup(sender, **kwargs):
 
     # Create survey groups
     for gname in [
-        "Infogespräche",
         "Sortiment",
         "Öffentlichkeitsarbeit",
         "Finanzen",
         "Genossenschaft",
         "IT und Digitales",
-        "Events",
+        "Events/Infogespräche",
         "Standort",
         "Minimarkt",
         "Diversität",
