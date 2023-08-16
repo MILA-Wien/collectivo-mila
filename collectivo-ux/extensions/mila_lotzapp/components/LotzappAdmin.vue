@@ -21,6 +21,18 @@ menuStore.setTitle("Lotzapp");
           :name="'lotzappSync'"
           :default-columns="['date', 'status', 'type', 'status_message']" />
       </TabPanel>
+      <TabPanel :header="t('Addresses')">
+        <ObjectTable
+          :store="mainStore"
+          :name="'lotzappAddresses'"
+          :default-columns="['user', 'lotzapp_id', 'sync_active']" />
+      </TabPanel>
+      <TabPanel :header="t('Invoices')">
+        <ObjectTable
+          :store="mainStore"
+          :name="'lotzappInvoices'"
+          :default-columns="['invoice', 'lotzapp_id', 'sync_active']" />
+      </TabPanel>
     </TabView>
   </div>
 </template>

@@ -1,7 +1,9 @@
 {
   "endpoints": {
     "lotzappSync": "/lotzapp/sync/",
-    "lotzappSettings": "/lotzapp/settings/"
+    "lotzappSettings": "/lotzapp/settings/",
+    "lotzappAddresses": "/lotzapp/addresses/",
+    "lotzappInvoices": "/lotzapp/invoices/"
   },
   "settings_endpoints": ["lotzappSettings"]
 }
