@@ -27,3 +27,23 @@ class LotzappSyncSerializer(serializers.ModelSerializer):
         model = models.LotzappSync
         fields = "__all__"
         read_only_fields = ("date", "status", "status_message")
+
+
+class LotzappInvoiceSerializer(serializers.ModelSerializer):
+    """Serializer for lotzapp Invoice actions."""
+
+    class Meta:
+        """Serializer settings."""
+
+        model = models.LotzappInvoice
+        fields = "__all__"
+
+
+class LotzappAddressSerializer(serializers.ModelSerializer):
+    """Serializer for lotzapp Address actions."""
+
+    class Meta:
+        """Serializer settings."""
+
+        model = models.LotzappAddress
+        fields = "__all__"

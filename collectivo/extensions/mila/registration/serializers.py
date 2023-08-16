@@ -1,9 +1,5 @@
 """Serializers of the mila registration extension."""
 
-from django.db import transaction
-from rest_framework import serializers
-from rest_framework.exceptions import ParseError
-
 from collectivo.memberships.models import MembershipStatus, MembershipType
 from collectivo.memberships.serializers import MembershipSerializer
 from collectivo.payments.models import PaymentProfile
@@ -11,6 +7,9 @@ from collectivo.payments.serializers import PaymentProfileSerializer
 from collectivo.profiles.models import UserProfile
 from collectivo.tags.models import Tag
 from collectivo.utils.serializers import UserFields, UserIsPk
+from django.db import transaction
+from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
 from . import models
 
@@ -252,6 +251,8 @@ class MemberRegisterSerializer(serializers.ModelSerializer):
         except MembershipType.DoesNotExist:
             type = MembershipType.objects.create(
                 name="MILA Mitmach-Supermarkt e. G.",
+                has_shares=True,
+                shares_amount_per_share=20,
             ).pk
 
         with transaction.atomic():

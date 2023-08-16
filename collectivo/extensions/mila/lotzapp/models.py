@@ -23,8 +23,7 @@ def raise_sync_error(response):
     """Raise an exception with the error message from lotzapp."""
     try:
         raise APIException(
-            f"Lotzapp address sync failed with {response.status_code}:"
-            f" {response.text}"
+            f"Lotzapp sync failed with {response.status_code}: {response.text}"
         )
     except Exception as e:
         raise APIException("Lotzapp sync failed:", e)
@@ -41,10 +40,10 @@ def create_item_name(item):
 class LotzappMixin:
     """Mixin for lotzapp models to create and update objects."""
 
-    def create_new(self, address_endpoint, auth, data):
+    def create_new(self, endpoint, auth, data):
         """Create a new object."""
         response = requests.post(
-            address_endpoint,
+            endpoint,
             auth=auth,
             json=data,
             timeout=10,
@@ -58,26 +57,31 @@ class LotzappMixin:
         except requests.exceptions.JSONDecodeError:
             raise_sync_error(response)
 
-    def update_existing(self, address_endpoint, auth, data):
+    def update_existing(self, endpoint, auth, data, overwrite=True):
         """Update an existing object."""
+
         # Check if ID exists
         get_response = requests.get(
-            address_endpoint + self.lotzapp_id + "/",
+            endpoint + self.lotzapp_id + "/",
             auth=auth,
             timeout=10,
         )
         check_response(get_response)
-        if get_response.status_code != 204:
+
+        # Overwrite, if exists (If response is not empty -> ID does exist)
+        if get_response.status_code != 204 and overwrite:
             put_response = requests.put(
-                address_endpoint + self.lotzapp_id + "/",
+                endpoint + self.lotzapp_id + "/",
                 auth=auth,
                 json=data,
                 timeout=10,
             )
             check_response(put_response)
+
+        # If response is empty (ID does not exist), create new object
         else:
-            # If ID does not exist, create new object
-            self.create_new(address_endpoint, auth, data)
+            self.create_new(endpoint, auth, data)
+
         return get_response
 
 
@@ -147,6 +151,7 @@ class LotzappAddress(LotzappMixin, models.Model):
     )
 
     lotzapp_id = models.CharField(max_length=255, blank=True)
+    sync_active = models.BooleanField(default=True)
 
     def __str__(self):
         """Return user name."""
@@ -154,7 +159,8 @@ class LotzappAddress(LotzappMixin, models.Model):
 
     def sync(self):
         """Sync the invoice with lotzapp."""
-
+        if not self.sync_active:
+            return
         user = self.user
         profile = self.user.profile
         payments = self.user.payment_profile
@@ -192,6 +198,7 @@ class LotzappInvoice(LotzappMixin, models.Model):
         related_name="lotzapp",
     )
     lotzapp_id = models.CharField(max_length=255, blank=True)
+    sync_active = models.BooleanField(default=True)
 
     def __str__(self):
         """Return the lotzapp id."""
@@ -199,6 +206,8 @@ class LotzappInvoice(LotzappMixin, models.Model):
 
     def sync(self):
         """Sync the invoice with lotzapp."""
+        if not self.sync_active or self.invoice.status != "open":
+            return
 
         settings = LotzappSettings.object(check_valid=True)
         auth = (settings.lotzapp_user, settings.lotzapp_pass)
@@ -212,6 +221,10 @@ class LotzappInvoice(LotzappMixin, models.Model):
                 user=self.invoice.payment_from.user
             )
         lotzapp_address.sync()
+        logger.Info(
+            f"Synced address for invoice {self.invoice.pk} with lotzapp id"
+            f" {lotzapp_address.lotzapp_id}"
+        )
 
         # Prepare invoice data for lotzapp
         zahlungsmethode = (
@@ -240,7 +253,11 @@ class LotzappInvoice(LotzappMixin, models.Model):
         if self.lotzapp_id == "":
             self.create_new(ar_endpoint, auth, data)
         else:
-            response = self.update_existing(ar_endpoint, auth, data)
+            # In case there is an ID but it was deleted on lotzapp,
+            # this command will create and connect a new one
+            response = self.update_existing(
+                ar_endpoint, auth, data, overwrite=False
+            )
 
             # Check if invoice is paid in lotzapp
             try:

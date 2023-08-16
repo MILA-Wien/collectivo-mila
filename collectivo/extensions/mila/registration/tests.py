@@ -108,6 +108,11 @@ class MilaRegistrationTests(TestCase):
         for k, v in SURVEY_PROFILE.items():
             self.assertEqual(v, getattr(surveyprofile, k))
 
+        # Automatically created invoice
+        invoice = member.user.account.invoices_out.last()
+        self.assertEqual(invoice.items.last().amount, 9)
+        self.assertEqual(invoice.items.last().price, 20)
+
     def test_create_member_legal(self):
         """Test that a legal member automatically becomes type investing."""
         payload = {**TEST_MEMBER_POST, "person_type": "legal"}
