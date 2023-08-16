@@ -221,7 +221,7 @@ class LotzappInvoice(LotzappMixin, models.Model):
                 user=self.invoice.payment_from.user
             )
         lotzapp_address.sync()
-        logger.Info(
+        logger.info(
             f"Synced address for invoice {self.invoice.pk} with lotzapp id"
             f" {lotzapp_address.lotzapp_id}"
         )
