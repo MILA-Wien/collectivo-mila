@@ -234,10 +234,6 @@ services:
       # no need to change for default setup:
       - MYSQL_DATABASE=${HABIDAT_DB_DB}
       - MYSQL_USER=${HABIDAT_DB_USER}
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
     logging:
       options:
         max-size: 50m
@@ -279,13 +275,13 @@ services:
       - HABIDAT_DK_AUTH_USER_OIDC_AUTH_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/auth
       - HABIDAT_DK_AUTH_USER_OIDC_TOKEN_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/token
       - HABIDAT_DK_AUTH_USER_OIDC_USERINFO_URL=${KEYCLOAK_URL}/realms/collectivo/protocol/openid-connect/userinfo
+      - HABIDAT_DK_INTEREST_RATE_TYPE=coupon
       - VIRTUAL_HOST=${HABIDAT_URL_BASE}
       - VIRTUAL_PORT=80
       - LETSENCRYPT_HOST=${HABIDAT_URL_BASE}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
     depends_on:
-      habidat-db:
-        condition: service_healthy
+      - habidat-db
     links:
       - habidat-db
     logging:
