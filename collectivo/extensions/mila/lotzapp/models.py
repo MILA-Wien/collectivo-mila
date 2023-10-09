@@ -264,6 +264,7 @@ class LotzappInvoice(LotzappMixin, models.Model):
                 res = response.json()[0]
                 if res.get("bezahlt", "0000-00-00") != "0000-00-00":
                     self.invoice.status = "paid"
+                    self.invoice.date_paid = res.get("bezahlt", None)
                     self.invoice.save()
             except requests.exceptions.JSONDecodeError:
                 logger.warning("Could not decode lotzapp response.")
