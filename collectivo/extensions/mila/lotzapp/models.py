@@ -69,14 +69,15 @@ class LotzappMixin:
         check_response(get_response)
 
         # Overwrite, if exists (If response is not empty -> ID does exist)
-        if get_response.status_code != 204 and overwrite:
-            put_response = requests.put(
-                endpoint + self.lotzapp_id + "/",
-                auth=auth,
-                json=data,
-                timeout=10,
-            )
-            check_response(put_response)
+        if get_response.status_code != 204:
+            if overwrite:
+                put_response = requests.put(
+                    endpoint + self.lotzapp_id + "/",
+                    auth=auth,
+                    json=data,
+                    timeout=10,
+                )
+                check_response(put_response)
 
         # If response is empty (ID does not exist), create new object
         else:
