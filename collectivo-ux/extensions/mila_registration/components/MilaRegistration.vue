@@ -1,11 +1,11 @@
 <template>
   <div id="registration-form">
     <div v-for="error of validation.$errors" :key="error.$uid">
-      <PrimeMessage v-if="registrationSchema" severity="error">
+      <PrimeMessage v-if="milaRegister.schema" severity="error">
         {{
           t(
-            registrationSchema.fields[error.$propertyPath]
-              ? registrationSchema.fields[error.$propertyPath].label
+            milaRegister.schema.fields[error.$propertyPath]
+              ? milaRegister.schema.fields[error.$propertyPath].label
               : ""
           )
         }}:
