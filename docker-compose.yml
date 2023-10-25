@@ -38,6 +38,7 @@ services:
       LOTZAPP_URL: "${LOTZAPP_URL}"
       LOTZAPP_USER: "${LOTZAPP_USER}"
       LOTZAPP_PASS: "${LOTZAPP_PASS}"
+      COLLECTIVO_URL: ${COLLECTIVO_URL}
       VIRTUAL_HOST: ${COLLECTIVO_URL_BASE}
       VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: ${COLLECTIVO_URL_BASE}
@@ -239,7 +240,7 @@ services:
         max-size: 50m
 
   habidat:
-    image: habidat/direktkredit:1.4
+    image: habidat/direktkredit:1.5
     restart: always
     volumes:
       - ./docker/habidat/config/:/habidat/config/
