@@ -1,3 +1,5 @@
+This is an archived version of Collectivo MILA. The current version has been moved to: [https://github.com/collectivo-dev/collectivo](https://github.com/MILA-Wien/mila-server)
+
 # Mein MILA - Collectivo
 
 An instance of [Collectivo](https://github.com/MILA-Wien/collectivo/) for the Austrian cooperative [MILA Mitmach-Supermarkt](https://www.mila.wien/).
